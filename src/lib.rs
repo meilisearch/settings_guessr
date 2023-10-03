@@ -190,3 +190,7 @@ pub struct FinalSettings {
     pub filterable_attributes: BTreeSet<String>,
     pub sortable_attributes: BTreeSet<String>,
 }
+
+pub fn hello() -> FinalSettings {
+    FinalSettings::default()
+}
