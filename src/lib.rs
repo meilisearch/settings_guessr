@@ -19,8 +19,7 @@ pub enum Setting {
     Sortable,
 }
 
-#[derive(Debug, Clone)]
-pub struct Document(Map<String, Value>);
+pub type Document = Map<String, Value>;
 
 impl FieldAccumulator {
     pub fn new() -> FieldAccumulator {
@@ -29,7 +28,7 @@ impl FieldAccumulator {
 
     pub fn push(&mut self, document: Document) {
         flatten_serde_json::flatten(&document);
-        for (key, value) in document.0 {
+        for (key, value) in document {
             self.unknown.entry(key).or_default().push(value);
         }
     }
