@@ -23,7 +23,10 @@ fn main() {
 
     let mut accumulator = FieldAccumulator::new();
 
-    let value: Value = serde_json::from_reader(&mut reader).unwrap();
+    let deserializer = serde_json::Deserializer::from_reader(&mut reader);
+    let mut deserializer = deserializer.into_iter();
+    // let value: Value = serde_json::from_reader(&mut reader).unwrap();
+    let value: Value = deserializer.next().expect("found empty stream").unwrap();
 
     if let Some(values) = value.as_array() {
         for value in values {
@@ -32,8 +35,9 @@ fn main() {
         }
     } else if let Some(document) = value.as_object() {
         accumulator.push(document);
-        while let Ok(document) = serde_json::from_reader::<_, Document>(&mut reader) {
-            accumulator.push(&document);
+
+        for document in deserializer {
+            accumulator.push(document.unwrap().as_object().unwrap());
         }
     }
 
