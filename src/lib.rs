@@ -220,7 +220,6 @@ impl FieldAccumulator {
 
             let truc = per_field_values.keys().cloned().collect::<Vec<_>>();
             let truc = truc.join("");
-            // dbg!(&truc);
             let truc = entropy_of(truc.chars());
 
             println!("{entropy:<6}\t for basic field {field}");
@@ -230,18 +229,24 @@ impl FieldAccumulator {
             let update_by = total as isize / 20;
             if (4.0..5.5).contains(&truc) {
                 searchable_score += update_by;
+                filterable_score -= update_by * 3;
+                sortable_score -= update_by * 3;
             } else {
                 searchable_score -= update_by * 3;
             }
 
             if (3.0..4.0).contains(&avg_inner_field_entropy) {
                 searchable_score += update_by;
+                filterable_score -= update_by * 3;
+                sortable_score -= update_by * 3;
             } else {
                 searchable_score -= update_by * 3;
             }
 
             if (12.0..20.0).contains(&entropy) {
                 searchable_score += update_by;
+                filterable_score -= update_by * 3;
+                sortable_score -= update_by * 3;
             } else {
                 searchable_score -= update_by * 3;
             }
