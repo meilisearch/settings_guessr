@@ -3,12 +3,14 @@ use std::collections::{BTreeSet, HashMap};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
-use serde_json::{Map, Value};
+use serde_json::Map;
+
+type Field = String;
 
 #[derive(Default, Debug)]
 pub struct FieldAccumulator {
-    well_defined: HashMap<String, Settings>,
-    unknown: HashMap<String, Vec<Value>>,
+    well_defined: HashMap<Field, Settings>,
+    unknown: HashMap<Field, Vec<serde_json::Value>>,
 }
 
 #[derive(Debug, Clone)]
@@ -21,7 +23,7 @@ pub enum Setting {
     Sortable,
 }
 
-pub type Document = Map<String, Value>;
+pub type Document = Map<String, serde_json::Value>;
 
 impl FieldAccumulator {
     pub fn new() -> FieldAccumulator {
@@ -45,18 +47,18 @@ impl FieldAccumulator {
 
             for value in values {
                 match value {
-                    Value::Null => (),
-                    Value::Bool(_) | Value::Number(_) => {
+                    serde_json::Value::Null => (),
+                    serde_json::Value::Bool(_) | serde_json::Value::Number(_) => {
                         filterable_score += 1;
                         sortable_score += 1;
                     }
-                    Value::Array(array) => {
+                    serde_json::Value::Array(array) => {
                         // TODO: sorting in an array seems like a bad ideas right?
                         sortable_score -= 1;
                         for value in array {
                             match value {
-                                Value::Number(_) => filterable_score += 1,
-                                Value::String(s) => {
+                                serde_json::Value::Number(_) => filterable_score += 1,
+                                serde_json::Value::String(s) => {
                                     searchable_score += 1;
                                     filterable_score += 1;
                                     for regex in ONLY_DISPLAY.iter() {
@@ -71,17 +73,23 @@ impl FieldAccumulator {
                                             searchable_score -= 10;
                                         }
                                     }
+                                    for regex in ONLY_SORT_AND_FILTER.iter() {
+                                        if regex.is_match(s) {
+                                            searchable_score -= 10;
+                                            filterable_score += 1;
+                                        }
+                                    }
                                 }
                                 // This has been flattened and should be ignored.
-                                Value::Array(_) => (),
+                                serde_json::Value::Array(_) => (),
                                 // TODO: That seems useless right?
-                                Value::Bool(_) => (),
+                                serde_json::Value::Bool(_) => (),
                                 // null and object can be ignored
                                 _ => (),
                             }
                         }
                     }
-                    Value::String(s) => {
+                    serde_json::Value::String(s) => {
                         searchable_score += 1;
                         for regex in ONLY_DISPLAY.iter() {
                             if regex.is_match(s) {
@@ -105,7 +113,7 @@ impl FieldAccumulator {
                             }
                         }
                     }
-                    Value::Object(_) => (),
+                    serde_json::Value::Object(_) => (),
                 }
             }
 

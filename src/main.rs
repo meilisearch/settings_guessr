@@ -25,7 +25,6 @@ fn main() {
 
     let deserializer = serde_json::Deserializer::from_reader(&mut reader);
     let mut deserializer = deserializer.into_iter();
-    // let value: Value = serde_json::from_reader(&mut reader).unwrap();
     let value: Value = deserializer.next().expect("found empty stream").unwrap();
 
     if let Some(values) = value.as_array() {
