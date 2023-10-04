@@ -309,24 +309,19 @@ impl FieldAccumulator {
                 println!("updating filterable: 1");
                 filterable_score += update_by;
                 sortable_score += update_by;
-            } else {
-                searchable_score -= update_by;
             }
 
             if (..2.85).contains(&avg_inner_field_entropy) {
                 println!("updating filterable: 2");
-                filterable_score += update_by;
+                filterable_score = total as isize;
                 sortable_score += update_by;
-            } else {
-                searchable_score -= update_by;
+                searchable_score = 0;
             }
 
             if (..13.0).contains(&entropy) {
                 println!("updating filterable: 3");
                 filterable_score += update_by;
                 sortable_score += update_by;
-            } else {
-                searchable_score -= update_by;
             }
 
             if dbg!(searchable_score as f64 / total as f64 * 100.) > 80. {
@@ -341,6 +336,8 @@ impl FieldAccumulator {
 
             self.well_defined
                 .insert(field.to_string(), Settings(settings));
+
+            println!("---------");
         }
 
         self.generate_final_settings()
@@ -374,7 +371,7 @@ static ONLY_DISPLAY: Lazy<Vec<Regex>> = Lazy::new(|| {
         // Matching paths in filesystems. See https://stackoverflow.com/questions/169008/regex-for-parsing-directory-and-filename
         // Regex::new(r"^(/|\\)?(.*)(/|\\)*\.[^/\\]$").unwrap(),
         // Path
-        Regex::new(r"^(.*[/\\])([^/\\]*)$").unwrap(),
+        // Regex::new(r"^(.*[/\\])([^/\\]*)$").unwrap(),
     ]
 });
 
