@@ -208,10 +208,12 @@ impl FieldAccumulator {
                                 sortable_score -= value.count as isize * 2;
                             }
 
-                            if s.chars().filter(|c| c.is_alphabetic()).count() as f64
-                                / s.chars().count() as f64
-                                * 100.
-                                > 80.
+                            let size = s.chars().count();
+                            if size > 100
+                                && s.chars().filter(|c| c.is_alphabetic()).count() as f64
+                                    / size as f64
+                                    * 100.
+                                    > 80.
                             {
                                 searchable_score += value.count as isize * 2;
                             }
