@@ -75,10 +75,10 @@ impl FieldAccumulator {
 
     pub fn push(&mut self, document: &Document) {
         let document = flatten_serde_json::flatten(document);
-        for (key, value) in document {
+        for (key, value) in document.into_iter() {
             let entry = self.unknown.entry(key).or_default();
             let mut to_insert = Value {
-                value: value.clone(),
+                value,
                 entropy: 0.,
                 count: 1,
             };
@@ -86,7 +86,7 @@ impl FieldAccumulator {
                 to_insert.count += count;
                 to_insert.entropy = *entropy;
             } else {
-                match value {
+                match &to_insert.value {
                     serde_json::Value::String(s) => to_insert.entropy = entropy_of(s.chars()),
                     // in case of an array we're going to average all the entropy maybe?
                     serde_json::Value::Array(arr) => {
@@ -115,7 +115,7 @@ impl FieldAccumulator {
             let mut sortable_score: isize = 0;
 
             let mut probs: Vec<f64> = Vec::new();
-            let mut per_field_values: HashMap<String, usize> = Default::default();
+            let mut per_field_values: HashMap<&str, usize> = Default::default();
             let mut nb_values: usize = 0;
             let mut avg_inner_field_entropy = 0.;
             let mut avg_inner_field_entropy_total = 0;
@@ -140,7 +140,7 @@ impl FieldAccumulator {
                             match element {
                                 serde_json::Value::Number(_) => filterable_score += 1,
                                 serde_json::Value::String(s) => {
-                                    *per_field_values.entry(s.clone()).or_default() += 1;
+                                    *per_field_values.entry(&s).or_default() += 1;
                                     nb_values += 1;
 
                                     if look_like_id(s) {
@@ -219,7 +219,7 @@ impl FieldAccumulator {
                             }
                         }
                         filterable_score += 1;
-                        *per_field_values.entry(s.clone()).or_default() += 1;
+                        *per_field_values.entry(s).or_default() += 1;
                         nb_values += 1;
 
                         for regex in ONLY_DISPLAY.iter() {
@@ -251,17 +251,15 @@ impl FieldAccumulator {
 
             let per_field_prob = per_field_values
                 .values()
-                .map(|count| *count as f64 / nb_values as f64)
-                .collect::<Vec<_>>();
+                .map(|count| *count as f64 / nb_values as f64);
             let entropy = entropy(per_field_prob);
 
             if avg_inner_field_entropy_total > 0 {
                 avg_inner_field_entropy /= avg_inner_field_entropy_total as f64;
             }
 
-            let truc = per_field_values.keys().cloned().collect::<Vec<_>>();
-            let truc = truc.join("");
-            let truc = entropy_of(truc.chars());
+            let truc_chars = per_field_values.keys().flat_map(|s| s.chars());
+            let truc = entropy_of(truc_chars);
 
             println!("{entropy:<6}\t for basic field {field}");
             println!("{:<6}\t for inner field {field}", avg_inner_field_entropy);
@@ -407,11 +405,7 @@ where
         total += 1;
         *map.entry(e).or_default() += 1;
     }
-    let probas = map
-        .into_values()
-        .map(|count| count as f64 / total as f64)
-        .collect::<Vec<_>>();
-
+    let probas = map.into_values().map(|count| count as f64 / total as f64);
     entropy(probas)
 }
 
