@@ -143,11 +143,20 @@ impl FieldAccumulator {
                                     *per_field_values.entry(s.clone()).or_default() += 1;
                                     nb_values += 1;
 
-                                    searchable_score += value.count as isize;
-                                    filterable_score += value.count as isize;
+                                    if look_like_id(s) {
+                                        searchable_score -= value.count as isize;
+                                        filterable_score += value.count as isize;
+                                    } else {
+                                        searchable_score += value.count as isize;
+                                        // size of an uuid-v4
+                                        if s.len() > 36 {
+                                            filterable_score -= value.count as isize * 2;
+                                            sortable_score -= value.count as isize * 2;
+                                        }
+                                    }
+
                                     for regex in ONLY_DISPLAY.iter() {
                                         if regex.is_match(s) {
-                                            println!("decreased here: {s}");
                                             searchable_score -= 10 * value.count as isize;
                                             filterable_score -= value.count as isize;
                                         }
@@ -175,14 +184,23 @@ impl FieldAccumulator {
                         }
                     }
                     serde_json::Value::String(s) => {
-                        searchable_score += 1;
+                        if look_like_id(s) {
+                            searchable_score -= value.count as isize;
+                            filterable_score += value.count as isize;
+                        } else {
+                            searchable_score += value.count as isize;
+                            // size of an uuid-v4
+                            if s.len() > 36 {
+                                filterable_score -= value.count as isize;
+                                sortable_score -= value.count as isize;
+                            }
+                        }
                         filterable_score += 1;
                         *per_field_values.entry(s.clone()).or_default() += 1;
                         nb_values += 1;
 
                         for regex in ONLY_DISPLAY.iter() {
                             if regex.is_match(s) {
-                                println!("decreased here: {s}");
                                 searchable_score -= 10;
                                 // TODO: should we decrement the score of these two one.
                                 filterable_score -= 1;
@@ -227,28 +245,65 @@ impl FieldAccumulator {
             println!("{truc:<6}\t for truc field {field}");
 
             let update_by = total as isize / 20;
+
+            if field.starts_with("id_") || field.ends_with("_id") {
+                searchable_score -= update_by * 5;
+                filterable_score += update_by;
+            }
+            if field.starts_with("id") || field.ends_with("id") {
+                searchable_score -= update_by;
+                filterable_score += update_by;
+            }
+
             if (4.0..5.5).contains(&truc) {
+                println!("updating searchable: 1");
                 searchable_score += update_by;
-                filterable_score -= update_by * 3;
-                sortable_score -= update_by * 3;
+                filterable_score -= update_by;
+                sortable_score -= update_by;
             } else {
-                searchable_score -= update_by * 3;
+                searchable_score -= update_by;
             }
 
             if (3.0..4.0).contains(&avg_inner_field_entropy) {
+                println!("updating searchable: 2");
                 searchable_score += update_by;
-                filterable_score -= update_by * 3;
-                sortable_score -= update_by * 3;
+                filterable_score -= update_by;
+                sortable_score -= update_by;
             } else {
-                searchable_score -= update_by * 3;
+                searchable_score -= update_by;
             }
 
             if (12.0..20.0).contains(&entropy) {
+                println!("updating searchable: 3");
                 searchable_score += update_by;
-                filterable_score -= update_by * 3;
-                sortable_score -= update_by * 3;
+                filterable_score -= update_by;
+                sortable_score -= update_by;
             } else {
-                searchable_score -= update_by * 3;
+                searchable_score -= update_by;
+            }
+
+            if (..4.85).contains(&truc) {
+                println!("updating filterable: 1");
+                filterable_score += update_by;
+                sortable_score += update_by;
+            } else {
+                searchable_score -= update_by;
+            }
+
+            if (..2.85).contains(&avg_inner_field_entropy) {
+                println!("updating filterable: 2");
+                filterable_score += update_by;
+                sortable_score += update_by;
+            } else {
+                searchable_score -= update_by;
+            }
+
+            if (..13.0).contains(&entropy) {
+                println!("updating filterable: 3");
+                filterable_score += update_by;
+                sortable_score += update_by;
+            } else {
+                searchable_score -= update_by;
             }
 
             if dbg!(searchable_score as f64 / total as f64 * 100.) > 80. {
@@ -263,7 +318,6 @@ impl FieldAccumulator {
 
             self.well_defined
                 .insert(field.to_string(), Settings(settings));
-            // do stats on the field
         }
 
         self.generate_final_settings()
@@ -296,23 +350,31 @@ static ONLY_DISPLAY: Lazy<Vec<Regex>> = Lazy::new(|| {
         Regex::new(r"^https?://[a-zA-Z]+\.[a-zA-Z]+(/[^ :]+)*/?$").unwrap(),
         // Matching paths in filesystems. See https://stackoverflow.com/questions/169008/regex-for-parsing-directory-and-filename
         // Regex::new(r"^(/|\\)?(.*)(/|\\)*\.[^/\\]$").unwrap(),
-    ]
-});
-
-static FILTER_BUT_NOT_SEARCH: Lazy<Vec<Regex>> = Lazy::new(|| {
-    vec![
-        // Number
-        Regex::new(
-            r"^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$",
-        )
-        .unwrap(),
         // Path
         Regex::new(r"^(.*[/\\])([^/\\]*)$").unwrap(),
     ]
 });
 
+static FILTER_BUT_NOT_SEARCH: Lazy<Vec<Regex>> = Lazy::new(|| {
+    vec![
+        // uuid v4
+        Regex::new(
+            r"^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$",
+        )
+        .unwrap(),
+    ]
+});
+
 static ONLY_SORT_AND_FILTER: Lazy<Vec<Regex>> =
-    Lazy::new(|| vec![Regex::new(r"^[0-9_\-\+:\.]$").unwrap()]);
+    // Number date and this kind of stuff
+    Lazy::new(|| vec![Regex::new(r"^[0-9_\-\+:\.]+$").unwrap()]);
+
+fn look_like_id(s: &str) -> bool {
+    let digits = s.chars().filter(char::is_ascii_hexdigit).count();
+    let alpha = s.chars().filter(|c| c.is_alphabetic()).count();
+
+    digits > alpha
+}
 
 fn entropy_of<Iterator, Element>(elements: Iterator) -> f64
 where
@@ -352,8 +414,4 @@ pub struct FinalSettings {
     pub searchable_attributes: Vec<String>,
     pub filterable_attributes: BTreeSet<String>,
     pub sortable_attributes: BTreeSet<String>,
-}
-
-pub fn hello() -> FinalSettings {
-    FinalSettings::default()
 }
