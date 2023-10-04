@@ -150,8 +150,20 @@ impl FieldAccumulator {
                                         searchable_score += value.count as isize;
                                         // size of an uuid-v4
                                         if s.len() > 36 {
+                                            searchable_score += value.count as isize;
                                             filterable_score -= value.count as isize * 2;
                                             sortable_score -= value.count as isize * 2;
+                                        }
+
+                                        let size = s.chars().count();
+                                        if size > 100
+                                            && s.chars().filter(|c| c.is_alphabetic()).count()
+                                                as f64
+                                                / size as f64
+                                                * 100.
+                                                > 80.
+                                        {
+                                            searchable_score += value.count as isize * 2;
                                         }
                                     }
 
@@ -191,8 +203,19 @@ impl FieldAccumulator {
                             searchable_score += value.count as isize;
                             // size of an uuid-v4
                             if s.len() > 36 {
-                                filterable_score -= value.count as isize;
-                                sortable_score -= value.count as isize;
+                                searchable_score += value.count as isize;
+                                filterable_score -= value.count as isize * 2;
+                                sortable_score -= value.count as isize * 2;
+                            }
+
+                            let size = s.chars().count();
+                            if size > 100
+                                && s.chars().filter(|c| c.is_alphabetic()).count() as f64
+                                    / size as f64
+                                    * 100.
+                                    > 80.
+                            {
+                                searchable_score += value.count as isize * 2;
                             }
                         }
                         filterable_score += 1;
