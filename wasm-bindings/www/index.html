@@ -23,10 +23,11 @@
           const buffer = new Uint8Array(content);
           const result = guess(buffer);
 
-          console.log("Finished");
-
           loading.style.display = "none";
-          resultPre.innerHTML = prettyPrintJson.toHtml(result);
+          resultPre.innerHTML = prettyPrintJson.toHtml(result, {
+            indent: 2,
+            trailingComma: false,
+          });
         }
       });
     </script>
