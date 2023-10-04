@@ -21,9 +21,7 @@
 
           console.log(result);
 
-          document.getElementById("result").innerHTML = prettyPrintJson.toHtml({
-            documentLength: result,
-          });
+          document.getElementById("result").innerHTML = prettyPrintJson.toHtml(result);
         }
       });
     </script>
