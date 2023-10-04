@@ -35,7 +35,7 @@ jobs:
           mkdir out
           wasm-pack build wasm-bindings --target web --out-dir ../out/
           rm -f out/.gitignore
-          cp /home/runner/work/settings_guessr/settings_guessr/wasm-bindings/www/index.html out/
+          cp wasm-bindings/www/* out/
           ls out/
 
       # Deploy to GitHub Pages
