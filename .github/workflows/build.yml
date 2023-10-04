@@ -33,7 +33,7 @@ jobs:
       - name: Build with wasm-pack
         run: |
           mkdir out
-          wasm-pack build wasm-bindings --target web --out-dir ../out/
+          wasm-pack build wasm-bindings --release --target web --out-dir ../out/
           rm -f out/.gitignore
           cp wasm-bindings/www/* out/
           ls out/
