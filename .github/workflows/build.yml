@@ -43,4 +43,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: /home/runner/work/settings_guessr/settings_guessr/wasm-bindings/www
           destination_dir: ./
-          force_orphan: true
