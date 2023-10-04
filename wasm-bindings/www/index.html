@@ -11,7 +11,7 @@
       await init(); // this loads and instantiates our WASM module
 
       window.onWasmLoaded(async () => {
-        let input = document.getElementById("file");
+        const input = document.getElementById("file");
 
         if (input.files.length) {
           console.log("Found a file");
@@ -20,11 +20,17 @@
           const result = guess(buffer);
 
           console.log(result);
+
+          document.getElementById("result").innerHTML = prettyPrintJson.toHtml({
+            documentLength: result,
+          });
         }
       });
     </script>
+    <script src="pretty-print-json.min.js"></script>
 
-    <link href="bootstrap.bundle.min.js" rel="stylesheet" />
+    <link href="pretty-print-json.css" rel="stylesheet" />
+    <link href="bootstrap.min.css" rel="stylesheet" />
   </head>
   <body>
     <div class="container" style="max-width: 720px">
@@ -37,6 +43,10 @@
 
         <button class="btn btn-primary" type="button" id="button">Guess!!!</button>
       </form>
+
+      <div class="mt-3">
+        <pre id="result" class="json-container"></pre>
+      </div>
     </div>
 
     <script>
