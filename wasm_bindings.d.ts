@@ -2,9 +2,9 @@
 /* eslint-disable */
 /**
 * @param {Uint8Array} buffer
-* @returns {number}
+* @returns {any}
 */
-export function guess(buffer: Uint8Array): number;
+export function guess(buffer: Uint8Array): any;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
@@ -12,6 +12,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly guess: (a: number, b: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
+  readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
