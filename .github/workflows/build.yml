@@ -32,8 +32,9 @@ jobs:
       # Build the Rust WASM file using wasm-pack
       - name: Build with wasm-pack
         run: |
-          wasm-pack build wasm-bindings --target web --out-dir www/
-          pwd
+          mkdir out
+          wasm-pack build wasm-bindings --target web --out-dir out/
+          cp /home/runner/work/settings_guessr/settings_guessr/wasm-bindings/www/index.html out/
           ls /home/runner/work/settings_guessr/settings_guessr/wasm-bindings/www
 
       # Deploy to GitHub Pages
@@ -41,5 +42,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: /home/runner/work/settings_guessr/settings_guessr/wasm-bindings/www
-          destination_dir: ./
+          publish_dir: ./out
