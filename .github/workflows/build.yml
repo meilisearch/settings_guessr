@@ -31,7 +31,12 @@ jobs:
 
       # Build the Rust WASM file using wasm-pack
       - name: Build with wasm-pack
-        run: wasm-pack build wasm-bindings --target web --out-dir www/
+        run: |
+          wasm-pack build wasm-bindings --target web --out-dir www/
+          pwd
+          ls
+          ls /home/runner/work/settings_guessr/settings_guessr/wasm-bindings
+          ls /home/runner/work/settings_guessr/settings_guessr/wasm-bindings/www
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
