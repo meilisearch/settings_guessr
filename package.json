@@ -1,0 +1,14 @@
+{
+  "name": "wasm-bindings",
+  "version": "0.1.0",
+  "files": [
+    "wasm_bindings_bg.wasm",
+    "wasm_bindings.js",
+    "wasm_bindings.d.ts"
+  ],
+  "module": "wasm_bindings.js",
+  "types": "wasm_bindings.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
