@@ -21,7 +21,7 @@ fn main() {
         exit(2);
     };
 
-    let mut accumulator = FieldAccumulator::new();
+    let mut accumulator = FieldAccumulator::default();
 
     let deserializer = serde_json::Deserializer::from_reader(&mut reader);
     let mut deserializer = deserializer.into_iter();

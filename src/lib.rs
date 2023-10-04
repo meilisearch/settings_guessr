@@ -10,7 +10,7 @@ pub type Document = Map<String, serde_json::Value>;
 
 type Field = String;
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct FieldAccumulator {
     well_defined: HashMap<Field, Settings>,
     unknown: HashMap<Field, HashSet<Value>>,
@@ -24,8 +24,10 @@ struct Value {
 }
 
 impl PartialEq for Value {
-    fn eq(&self, other: &Self) -> bool {
-        self.value.eq(&other.value)
+    fn eq(&self, _other: &Self) -> bool {
+        // WARNING don't do that
+        true
+        // self.value.eq(&other.value)
     }
 }
 
@@ -66,6 +68,15 @@ enum Setting {
     Searchable,
     Filterable,
     Sortable,
+}
+
+impl Default for FieldAccumulator {
+    fn default() -> Self {
+        Self {
+            well_defined: HashMap::new(),
+            unknown: HashMap::with_capacity(20_000),
+        }
+    }
 }
 
 impl FieldAccumulator {
