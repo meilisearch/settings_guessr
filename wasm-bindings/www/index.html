@@ -26,6 +26,7 @@
           loading.style.display = "none";
           resultPre.innerHTML = prettyPrintJson.toHtml(result, {
             indent: 2,
+            quoteKeys: true,
             trailingComma: false,
           });
         }
