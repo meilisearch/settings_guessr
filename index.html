@@ -12,16 +12,21 @@
 
       window.onWasmLoaded(async () => {
         const input = document.getElementById("file");
+        const loading = document.getElementById("loading");
+        const resultPre = document.getElementById("result");
 
         if (input.files.length) {
-          console.log("Found a file");
+          loading.style.display = "inherit";
+          resultPre.innerHTML = "";
+
           const content = await input.files[0].arrayBuffer();
           const buffer = new Uint8Array(content);
           const result = guess(buffer);
 
-          console.log(result);
+          console.log("Finished");
 
-          document.getElementById("result").innerHTML = prettyPrintJson.toHtml(result);
+          loading.style.display = "none";
+          resultPre.innerHTML = prettyPrintJson.toHtml(result);
         }
       });
     </script>
@@ -32,7 +37,9 @@
   </head>
   <body>
     <div class="container" style="max-width: 720px">
-      <h1>Settings Guessr</h1>
+      <h1 class="mt-5">Settings Guessr</h1>
+
+      <p>This is a simple tool to guess the index settings based on a dataset.</p>
 
       <form action="">
         <div class="mb-3">
@@ -43,8 +50,18 @@
       </form>
 
       <div class="mt-3">
+        <p style="display: none" id="loading" class="placeholder-glow">
+          <span class="placeholder col-6"></span>
+          <span class="placeholder col-12"></span>
+          <span class="placeholder col-2"></span>
+        </p>
+
         <pre id="result" class="json-container"></pre>
       </div>
+
+      <figure>
+        <figquote class="blockquote-footer"> Made with ❤️ at the <cite>Château de Rosay 🏰</cite> </figquote>
+      </figure>
     </div>
 
     <script>
