@@ -140,7 +140,7 @@ impl FieldAccumulator {
                             match element {
                                 serde_json::Value::Number(_) => filterable_score += 1,
                                 serde_json::Value::String(s) => {
-                                    *per_field_values.entry(&s).or_default() += 1;
+                                    *per_field_values.entry(s).or_default() += 1;
                                     nb_values += 1;
 
                                     if look_like_id(s) {
@@ -247,6 +247,7 @@ impl FieldAccumulator {
                     serde_json::Value::Object(_) => (),
                 }
             }
+
             let mut settings: Vec<Setting> = Vec::new();
 
             let per_field_prob = per_field_values
@@ -424,6 +425,7 @@ fn entropy(probas: impl IntoIterator<Item = f64>) -> f64 {
 }
 
 #[derive(Default, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct FinalSettings {
     pub searchable_attributes: Vec<String>,
     pub filterable_attributes: BTreeSet<String>,
