@@ -314,7 +314,7 @@ impl FieldAccumulator {
                 println!("updating filterable: 2");
                 filterable_score = total as isize;
                 sortable_score += update_by;
-                searchable_score = 0;
+                searchable_score = isize::MIN;
             }
 
             if (..13.0).contains(&entropy) {
@@ -366,7 +366,7 @@ impl FieldAccumulator {
 static ONLY_DISPLAY: Lazy<Vec<Regex>> = Lazy::new(|| {
     vec![
         // Matching URLs. see https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
-        Regex::new(r"^https?://[a-zA-Z]+\.[a-zA-Z]+(/[^ :]+)*/?$").unwrap(),
+        Regex::new(r"^https?://").unwrap(),
         // Matching paths in filesystems. See https://stackoverflow.com/questions/169008/regex-for-parsing-directory-and-filename
         // Regex::new(r"^(/|\\)?(.*)(/|\\)*\.[^/\\]$").unwrap(),
         // Path
