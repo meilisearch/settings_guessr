@@ -1,0 +1,41 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build_release:
+    name: build_release
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository content
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Setup Rust
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      # Install wasm-pack
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      # Build the Rust WASM file using wasm-pack
+      - name: build artifacts with wasm-pack
+        run: wasm-pack build wasm-bindings --release --target web
+
+      # Create the release with the wasm artifact
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: wasm-bindings/pkg/wasm_bindings_bg.wasm
