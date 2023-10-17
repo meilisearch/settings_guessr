@@ -2,6 +2,7 @@
 name = "wasm-bindings"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/meilisearch/settings_guessr"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -12,7 +13,7 @@ default = ["console_error_panic_hook"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-settings_guessr = { path = "../" }
+settings_guessr = { path = "../settings_guessr" }
 wasm-bindgen = "0.2.87"
 serde-wasm-bindgen = "0.6.0"
 console_error_panic_hook = { version = "0.1.7", optional = true }
