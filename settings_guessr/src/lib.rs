@@ -273,9 +273,9 @@ impl FieldAccumulator {
             let truc_chars = per_field_values.keys().flat_map(|s| s.chars());
             let truc = entropy_of(truc_chars);
 
-            println!("{entropy:<6}\t for basic field {field}");
-            println!("{:<6}\t for inner field {field}", avg_inner_field_entropy);
-            println!("{truc:<6}\t for truc field {field}");
+            // println!("{entropy:<6}\t for basic field {field}");
+            // println!("{:<6}\t for inner field {field}", avg_inner_field_entropy);
+            // println!("{truc:<6}\t for truc field {field}");
 
             let update_by = total as isize / 20;
 
@@ -289,7 +289,7 @@ impl FieldAccumulator {
             }
 
             if (4.0..5.5).contains(&truc) {
-                println!("updating searchable: 1");
+                // println!("updating searchable: 1");
                 searchable_score += update_by;
                 filterable_score -= update_by;
                 sortable_score -= update_by;
@@ -298,7 +298,7 @@ impl FieldAccumulator {
             }
 
             if (3.0..4.0).contains(&avg_inner_field_entropy) {
-                println!("updating searchable: 2");
+                // println!("updating searchable: 2");
                 searchable_score += update_by;
                 filterable_score -= update_by;
                 sortable_score -= update_by;
@@ -307,7 +307,7 @@ impl FieldAccumulator {
             }
 
             if (12.0..20.0).contains(&entropy) {
-                println!("updating searchable: 3");
+                // println!("updating searchable: 3");
                 searchable_score += update_by;
                 filterable_score -= update_by;
                 sortable_score -= update_by;
@@ -316,38 +316,38 @@ impl FieldAccumulator {
             }
 
             if (..4.85).contains(&truc) {
-                println!("updating filterable: 1");
+                // println!("updating filterable: 1");
                 filterable_score += update_by;
                 sortable_score += update_by;
             }
 
             if (..2.85).contains(&avg_inner_field_entropy) {
-                println!("updating filterable: 2");
+                // println!("updating filterable: 2");
                 filterable_score = total as isize;
                 sortable_score += update_by;
                 searchable_score = isize::MIN;
             }
 
             if (..13.0).contains(&entropy) {
-                println!("updating filterable: 3");
+                // println!("updating filterable: 3");
                 filterable_score += update_by;
                 sortable_score += update_by;
             }
 
-            if dbg!(searchable_score as f64 / total as f64 * 100.) > 80. {
+            if (searchable_score as f64 / total as f64 * 100.) > 80. {
                 settings.push(Setting::Searchable);
             }
-            if dbg!(filterable_score as f64 / total as f64 * 100.) > 80. {
+            if (filterable_score as f64 / total as f64 * 100.) > 80. {
                 settings.push(Setting::Filterable);
             }
-            if dbg!(sortable_score as f64 / total as f64 * 100.) > 80. {
+            if (sortable_score as f64 / total as f64 * 100.) > 80. {
                 settings.push(Setting::Sortable);
             }
 
             self.well_defined
                 .insert(field.to_string(), Settings(settings));
 
-            println!("---------");
+            // println!("---------");
         }
 
         self.generate_final_settings()

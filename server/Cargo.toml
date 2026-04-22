@@ -1,0 +1,13 @@
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/meilisearch/settings_guessr"
+publish = false
+
+[dependencies]
+axum = "0.8.9"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+settings_guessr = { path = "../settings_guessr" }
+tokio = { version = "1.52.1", features = ["macros", "rt-multi-thread"] }
