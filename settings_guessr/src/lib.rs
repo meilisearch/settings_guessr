@@ -1,10 +1,10 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 use serde_json::Map;
+use std::sync::LazyLock;
 
 pub type Document = Map<String, serde_json::Value>;
 
@@ -374,7 +374,7 @@ impl FieldAccumulator {
     }
 }
 
-static ONLY_DISPLAY: Lazy<Vec<Regex>> = Lazy::new(|| {
+static ONLY_DISPLAY: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     vec![
         // Matching URLs. see https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
         Regex::new(r"^https?://").unwrap(),
@@ -385,7 +385,7 @@ static ONLY_DISPLAY: Lazy<Vec<Regex>> = Lazy::new(|| {
     ]
 });
 
-static FILTER_BUT_NOT_SEARCH: Lazy<Vec<Regex>> = Lazy::new(|| {
+static FILTER_BUT_NOT_SEARCH: LazyLock<Vec<Regex>> = LazyLock::new(|| {
     vec![
         // uuid v4
         Regex::new(
@@ -395,9 +395,9 @@ static FILTER_BUT_NOT_SEARCH: Lazy<Vec<Regex>> = Lazy::new(|| {
     ]
 });
 
-static ONLY_SORT_AND_FILTER: Lazy<Vec<Regex>> =
+static ONLY_SORT_AND_FILTER: LazyLock<Vec<Regex>> =
     // Number date and this kind of stuff
-    Lazy::new(|| vec![Regex::new(r"^[0-9_\-\+:\.]+$").unwrap()]);
+    LazyLock::new(|| vec![Regex::new(r"^[0-9_\-\+:\.]+$").unwrap()]);
 
 fn look_like_id(s: &str) -> bool {
     let digits = s.chars().filter(char::is_ascii_hexdigit).count();

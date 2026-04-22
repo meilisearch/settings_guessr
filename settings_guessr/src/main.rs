@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{BufRead, BufReader},
+    io::{BufRead, BufReader, IsTerminal},
     process::exit,
 };
 
@@ -8,11 +8,11 @@ use serde_json::Value;
 use settings_guessr::{Document, FieldAccumulator};
 
 fn main() {
+    let stdin = std::io::stdin();
     let mut reader = if let Some(path) = std::env::args().nth(1) {
         let file = File::open(path).unwrap();
         Box::new(BufReader::new(file)) as Box<dyn BufRead>
-    } else if atty::isnt(atty::Stream::Stdin) {
-        let stdin = std::io::stdin();
+    } else if !stdin.is_terminal() {
         Box::new(BufReader::new(stdin)) as Box<dyn BufRead>
     } else {
         eprintln!(
